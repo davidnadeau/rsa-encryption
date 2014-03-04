@@ -58,16 +58,39 @@ function exp(x,y,n) {
        result = (result * x) % n;
     return result;
 }
+
+function isPrime(n) {
+    if (n < 2) return false;
+    if (n === 2 || n === 3) return true;
+    if (n % 2 === 0 || n % 3 === 0) return false;
+    var largestDivisor = Math.round(Math.sqrt(n));
+    for (var i = 5; i <= largestDivisor; i+=6) {
+        if (n % i === 0 || n % (i + 2) === 0) return false;
+    }
+    return true;
+}
+function generatePrime() {
+    var x = randomRange(100, 997);
+    console.log(x)
+    while (x <= 999) {
+        if (isPrime(x))
+            return x;
+        ++x;
+    }
+    return 107;
+}
+function randomRange(min, max) {
+    return min + Math.round((Math.random()*(max-min)));
+}
 return {
     test: function() {
         var BLOCKSIZE = 2;
-        var p = 23;
-        var q = 41;
+        var p = generatePrime();
+        var q = generatePrime();
         var n = p*q;
         var phin = (p-1)*(q-1);
         var e = findE(n, phin);
         var d = findD(phin, e);
-
         console.log("p:",p, "q:", q, "n:", n);
         console.log("phi:",phin);
         console.log("e:", e, "d:",d);
