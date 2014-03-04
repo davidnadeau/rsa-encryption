@@ -28,10 +28,14 @@ function encode(msg, e, n, BLOCKSIZE) {
     return msg; 
 }
 
-function decode(blocks, d, n) {
+function decode(blocks, d, n, BLOCKSIZE) {
     var msg = "";
-    for (var i = 0; i < blocks.length; ++i)
-        msg += exp(+blocks[i], d,n);
+    for (var i = 0; i < blocks.length; ++i) {
+        decoded = exp(blocks[i], d, n)
+        if (decoded < Math.pow(10,BLOCKSIZE-1))
+            decoded = '0' + decoded;       
+        msg += decoded;
+    }
     return msg; 
 }
 
@@ -71,7 +75,6 @@ function isPrime(n) {
 }
 function generatePrime() {
     var x = randomRange(100, 997);
-    console.log(x)
     while (x <= 999) {
         if (isPrime(x))
             return x;
@@ -96,7 +99,7 @@ function encodeInput(letter) {
     switch (letter) {
         case 'a': return "01";
         case 'b': return "02";
-        case 'c': return "02";
+        case 'c': return "03";
         case 'd': return "04";
         case 'e': return "05";
         case 'f': return "06";
@@ -124,11 +127,19 @@ function encodeInput(letter) {
     }
 }
 
+function decodeMessage(msg) {
+    var encoded = "";
+    for (var i = 0; i < msg.length; i+=2) {
+        encoded += decodeInput(msg.charAt(i)+msg.charAt(i+1));
+    }
+    return encoded;
+}
+
 function decodeInput(num) {
-    switch (num) {
+    switch (+num) {
         case 1: return 'a';
         case 2: return 'b';
-        case 2: return 'c';
+        case 3: return 'c';
         case 4: return 'd';
         case 5: return 'e';
         case 6: return 'f';
@@ -164,16 +175,15 @@ return {
         var phin = (p-1)*(q-1);
         var e = findE(n, phin);
         var d = findD(phin, e);
-        console.log("p:",p, "q:", q, "n:", n);
-        console.log("phi:",phin);
-        console.log("e:", e, "d:",d);
+        
         var plaintext = "no problem";
         var msg = encodeMessage(plaintext);
-        console.log(plaintext, msg);
-        //var msg = "14152716181502120513";
+        console.log(plaintext);
+        
         var cipher = encode(msg, e, n, BLOCKSIZE);
         var decoded  = decode(cipher, d, n, BLOCKSIZE);
-        console.log("original: ", msg,'\n', "encrypted: ", cipher, '\n', "decoded: ", decoded); 
+        var backtotext = decodeMessage(decoded);
+        console.log(backtotext);
     }
 };
 }());
