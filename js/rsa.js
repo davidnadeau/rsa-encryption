@@ -1,6 +1,6 @@
 var RSA = (function() {
 
-function Gcd(n,m) {
+function gcd(n,m) {
     var p = n > m ? n : m;
     var q = n < m ? n : m;
     var r = p % q;
@@ -20,7 +20,7 @@ function splitMessage(msg, BLOCKSIZE) {
     return blocks;
 }
 
-function encode(msg, e, n, BLOCKSIZE) {
+function encrypt(msg, e, n, BLOCKSIZE) {
     blocks = splitMessage(msg, BLOCKSIZE);
     msg = [];
     for (var i = 0; i < blocks.length; ++i)
@@ -28,7 +28,7 @@ function encode(msg, e, n, BLOCKSIZE) {
     return msg; 
 }
 
-function decode(blocks, d, n, BLOCKSIZE) {
+function decrypt(blocks, d, n, BLOCKSIZE) {
     var msg = "";
     for (var i = 0; i < blocks.length; ++i) {
         decoded = exp(blocks[i], d, n)
@@ -51,7 +51,7 @@ function findE(n, phin) {
     var i = 0;
     while (Math.pow(2,i) < n) ++i;
     while (i++ < phin) 
-        if (Gcd(i, phin) == 1)
+        if (gcd(i, phin) == 1)
         return i;
     return -1;
 }
@@ -73,9 +73,9 @@ function isPrime(n) {
     }
     return true;
 }
-function generatePrime() {
-    var x = randomRange(100, 997);
-    while (x <= 999) {
+function generatePrime(length) {
+    var x = randomRange(Math.pow(10,length-1), Math.pow(10,length));
+    while (x < Math.pow(10, length)) {
         if (isPrime(x))
             return x;
         ++x;
@@ -87,7 +87,7 @@ function randomRange(min, max) {
     return min + Math.round((Math.random()*(max-min)));
 }
 
-function encodeMessage(msg) {
+function encode(msg) {
     var encoded = "";
     for (var i = 0; i < msg.length; i++) {
         encoded += encodeInput(msg.charAt(i));
@@ -127,7 +127,7 @@ function encodeInput(letter) {
     }
 }
 
-function decodeMessage(msg) {
+function decode(msg) {
     var encoded = "";
     for (var i = 0; i < msg.length; i+=2) {
         encoded += decodeInput(msg.charAt(i)+msg.charAt(i+1));
@@ -169,21 +169,25 @@ function decodeInput(num) {
 return {
     test: function() {
         var BLOCKSIZE = 2;
-        var p = generatePrime();
-        var q = generatePrime();
+        var p = generatePrime(3);
+        var q = generatePrime(3);
         var n = p*q;
+        
         var phin = (p-1)*(q-1);
         var e = findE(n, phin);
         var d = findD(phin, e);
         
         var plaintext = "no problem";
-        var msg = encodeMessage(plaintext);
-        console.log(plaintext);
+        var encoded =   encode(plaintext);
+        var encrypted = encrypt(encoded, e, n, BLOCKSIZE);
+        var decrypted = decrypt(encrypted, d, n, BLOCKSIZE);
+        var decoded =   decode(decrypted);
         
-        var cipher = encode(msg, e, n, BLOCKSIZE);
-        var decoded  = decode(cipher, d, n, BLOCKSIZE);
-        var backtotext = decodeMessage(decoded);
-        console.log(backtotext);
+        console.log("Input :", plaintext);
+        console.log("Encoded :", encoded);
+        console.log("Encrypted :", encrypted);
+        console.log("Decrypted :", decrypted);
+        console.log("Output :", decoded);
     }
 };
 }());
