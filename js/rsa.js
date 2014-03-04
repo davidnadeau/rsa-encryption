@@ -78,4 +78,4 @@ return {
     }
 };
 }());
-Inverse.test();
+RSA.test();
